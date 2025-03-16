@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+.chart-hover {
+  @apply border-zinc-600/50 bg-zinc-900/60 grid min-w-[8rem] items-start gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs shadow-xl;
+}
+
+.chart-footer {
+  @apply flex-col gap-2 text-sm;
+}
+
+.footer-title {
+  @apply flex items-center font-semibold gap-2 leading-none;
+}
+
+.footer-desc {
+  @apply text-zinc-300 leading-none;
+}
+
+.chart-height {
+  @apply max-h-[250px] mx-auto w-full;
+}
