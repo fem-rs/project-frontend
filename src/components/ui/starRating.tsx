@@ -21,7 +21,6 @@ const Ratings = ({ ...props }: RatingsProps) => {
         size = 20,
         fill = true,
         icon = <Star />,
-        variant = "default",
         asinput = false,
         handlevaluechange,
         value,

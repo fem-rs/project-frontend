@@ -1,8 +1,8 @@
 "use client";
 
+import { Suspense } from "react";
 import { TrendingUp } from "lucide-react";
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
-
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import {
   Card,
   CardContent,
@@ -17,71 +17,106 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-const chartData = [
-  { month: "January", desktop: 186 },
-  { month: "February", desktop: 305 },
-  { month: "March", desktop: 237 },
-  { month: "April", desktop: 73 },
-  { month: "May", desktop: 209 },
-  { month: "June", desktop: 214 },
-];
+import useSWR from "swr";
+import Axios from "axios";
 
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
+  accuracy: {
+    label: "Accuracy",
     color: "hsl(var(--chart-1))",
+  },
+  val_accuracy: {
+    label: "Validation Accuracy",
+    color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
 
-export function LinesChart() {
+const fetcher = async (url: string) => {
+  const res = await Axios.get(url, { timeout: 5000 });
+
+  return Object.keys(res.data.accuracy).map((key) => ({
+    epoch: key,
+    accuracy: res.data.accuracy[key],
+    val_accuracy: res.data.val_accuracy[key],
+  }));
+};
+
+function AccuracyChartContent() {
+  const { data: chartData, error } = useSWR(
+    process.env.NEXT_PUBLIC_BACKEND_URL + "/statistics/accuracy",
+    fetcher,
+    {
+      refreshInterval: 1000
+    }
+  );
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-44 text-red-500 text-lg font-semibold">
+        Error loading data
+      </div>
+    );
+  }
+
+  if (!chartData) {
+    return (
+      <div className="flex items-center justify-center align-center h-44 bg-primary text-gray-600 text-lg font-semibold rounded-lg shadow-md animate-pulse">
+        Loading data...
+      </div>
+    );
+  }
+
+  return (
+    <ChartContainer className="chart-height" config={chartConfig}>
+      <LineChart data={chartData} margin={{ left: 12, right: 12 }}>
+        <CartesianGrid vertical={false} />
+        <XAxis dataKey="epoch" tickLine={false} axisLine={false} tickMargin={8} />
+        <YAxis domain={[0.77, 0.78]} />
+        <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+        <Line
+          dataKey="accuracy"
+          type="natural"
+          stroke="var(--color-accuracy)"
+          strokeWidth={2}
+          dot={false}
+        />
+        <Line
+          dataKey="val_accuracy"
+          type="linear"
+          stroke="var(--color-val_accuracy)"
+          strokeWidth={2}
+          dot={false}
+        />
+      </LineChart>
+    </ChartContainer>
+  );
+}
+
+export function AccuracyChart() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Line Chart - Linear</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle className="flex justify-center">Model Accuracy Over Epochs</CardTitle>
+        <CardDescription className="flex justify-center">Tracking accuracy and validation accuracy per epoch</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer className="chart-height" config={chartConfig}>
-          <LineChart
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Line
-              dataKey="desktop"
-              type="linear"
-              stroke="var(--color-desktop)"
-              strokeWidth={2}
-              dot={false}
-            />
-          </LineChart>
-        </ChartContainer>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center bg-gray-100 text-gray-600 text-lg font-semibold rounded-lg shadow-md animate-pulse">
+              Loading data...
+            </div>
+          }
+        >
+          <AccuracyChartContent />
+        </Suspense>
       </CardContent>
       <CardFooter className="chart-footer">
-        <p className="footer-title">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </p>
-        <p className="footer-desc">
-          Showing total visitors for the last 6 months
-        </p>
+        <div className="footer-title flex items-center">
+          <TrendingUp className="h-4 w-4" /> Accuracy went up then levelled out
+        </div>
       </CardFooter>
     </Card>
   );
 }
 
-export default LinesChart;
+export default AccuracyChart;

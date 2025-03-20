@@ -41,6 +41,7 @@ export default function Home() {
 
   return (
     <>
+
       <nav className="navbar">
         <Link href={'https://github.com/fem-rs'} className="flex gap-2">
           <svg

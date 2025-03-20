@@ -1,6 +1,6 @@
 "use client";
 
-import { Info, TrendingUp } from "lucide-react";
+import { Info } from "lucide-react";
 import { Pie, PieChart } from "recharts";
 
 import {
@@ -18,8 +18,8 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 const chartData = [
-  { dataSplit: "train", dataCount: 20, fill: "hsl(var(--chart-2))" },
-  { dataSplit: "test", dataCount: 80, fill: "hsl(var(--chart-3))" },
+  { dataSplit: "test", dataCount: 20, fill: "hsl(var(--chart-2))" },
+  { dataSplit: "train", dataCount: 80, fill: "hsl(var(--chart-3))" },
 ];
 
 const chartConfig = {
@@ -43,9 +43,7 @@ export function PiChart() {
       <CardContent className="flex-1 pb-0">
         <ChartContainer config={chartConfig} className="mx-auto max-h-[250px]">
           <PieChart>
-            <ChartTooltip
-              content={<ChartTooltipContent nameKey="dataCount" hideLabel />}
-            />
+            <ChartTooltip content={<ChartTooltipContent nameKey="dataCount" />} />
             <Pie
               data={chartData}
               dataKey="dataCount"
@@ -61,7 +59,7 @@ export function PiChart() {
                     dominantBaseline={props.dominantBaseline}
                     fill="#fff"
                   >
-                    {payload.dataCount}
+                    {payload.dataCount}%
                   </text>
                 );
               }}

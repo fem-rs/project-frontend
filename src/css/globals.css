@@ -78,7 +78,3 @@ p {
 .test {
   @apply bg-red-200 flex w-full;
 }
-
-.rdp-vhidden {
-  @apply hidden;
-}
